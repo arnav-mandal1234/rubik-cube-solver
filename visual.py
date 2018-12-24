@@ -13,7 +13,7 @@ if not dir in sys.path:
     sys.path.append(dir )
 
 # To install kociemba, clone the repository https://github.com/muodov/kociemba and move the "kociemba" folder where your .blend file is
-import kociemba
+#import kociemba
 
 bpy.context.scene.render.engine = 'CYCLES'
 
@@ -670,7 +670,15 @@ def solutionParser(solution):
         pause(5)
     textChange.append({"frame": current_frame, "text": ":)"})
 
-solutionParser(kociemba.solve(cubestring))
+#solutionParser(kociemba.solve(cubestring))
+
+moveFront()
+moveUp()
+moveDown()
+moveLeft()
+moveRight()
+moveBack()
+
 bpy.ops.object.select_all(action='DESELECT')
 
 
