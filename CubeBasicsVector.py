@@ -1,3 +1,6 @@
+import copy
+
+
 cube_row = 3
 cube_column = 3
 cube_faces = 6
@@ -55,10 +58,10 @@ class Cube:
     }
 
     index_switcher = {
-            'UP': [[0,2], [0,1], [0,0]],
-            'RIGHT': [[2,2], [1,2], [0,2]],
-            'DOWN': [[2,0], [2,1], [2,2]],
-            'LEFT': [[0,0], [1,0], [2,0]],
+            'UP'    : [[0,2], [0,1], [0,0]],
+            'RIGHT' : [[2,2], [1,2], [0,2]],
+            'DOWN'  : [[2,0], [2,1], [2,2]],
+            'LEFT'  : [[0,0], [1,0], [2,0]],
     }
 
     switcher_adj = {
@@ -86,13 +89,18 @@ class Cube:
             3 : 'LEFT',
     }
 
-    cent_index = [[2,0,0,0],[1,0,0,1],[0,0,0,2],[0,1,1,2],[0,2,2,2],[1,2,2,1],[2,2,2,0],[2,1,1,0],[1,1,1,1]]
+    cent_index = [[2, 0, 0, 0], [1, 0, 0, 1], [0, 0, 0, 2], [0, 1, 1, 2], [0, 2, 2, 2],
+                  [1, 2, 2, 1], [2, 2, 2, 0], [2, 1, 1, 0], [1, 1, 1, 1]]
+
 
     def print_Cube(self):
 
         for sides in range(6):
-            print(self.Rubic[sides][0]); print(self.Rubic[sides][1]); print(self.Rubic[sides][2])
+            print(self.Rubic[sides][0])
+            print(self.Rubic[sides][1])
+            print(self.Rubic[sides][2])
             print("\n")
+
 
     def get_opp_center_block(self,center_block_id):
 
@@ -107,12 +115,13 @@ class Cube:
 
         return switcher.get(center_block_id, "E")
 
-    def get_right_or_left_center_block(self,request ,ref_center,ref_up_center):
+
+    def get_right_or_left_center_block(self,request ,ref_center, ref_up_center):
 
         right_center = 'E'
         left_center = 'E'
-        
         adj_squares = self.switcher_adj.get(ref_center, "E")
+
         for elements in range(5):
             if ref_up_center is adj_squares[elements]:
                 right_center = adj_squares[elements + 1]
@@ -126,30 +135,30 @@ class Cube:
         elif request is 'LEFT':
             return left_center
 
+
     def update_move_ref(self):
 
         links_sides = self.switcher_links.get(self.move_center_id, "E")
 
         self.move_ref['FRONT'] = links_sides['FRONT']
-        self.move_ref['BACK'] = links_sides['BACK']
-        self.move_ref['UP'] = links_sides['UP']
-        self.move_ref['DOWN'] = links_sides['DOWN']
-        self.move_ref['LEFT'] = links_sides['LEFT']
+        self.move_ref['BACK']  = links_sides['BACK']
+        self.move_ref['UP']    = links_sides['UP']
+        self.move_ref['DOWN']  = links_sides['DOWN']
+        self.move_ref['LEFT']  = links_sides['LEFT']
         self.move_ref['RIGHT'] = links_sides['RIGHT']
 
     def perform_move_center(self):
 
         rubic_select = self.rubic_switcher.get(self.move_center_id, "E")
-        print(self.move_center)
-        self.move_center = self.Rubic[rubic_select]
-        print(self.move_center)
-    
-        if(self.move_dir is 'A'):
-            for index in range(0,9): 
+        self.move_center = copy.deepcopy(self.Rubic[rubic_select])
+
+        if (self.move_dir is 'A'):
+            for index in range(0, 9):
                 self.Rubic[rubic_select][self.cent_index[index][0]][self.cent_index[index][1]] = self.move_center[self.cent_index[index][2]][self.cent_index[index][3]]
-        elif(self.move_dir is 'C'):
-            for index in range(0,9): 
+        elif (self.move_dir is 'C'):
+            for index in range(0, 9):
                 self.Rubic[rubic_select][self.cent_index[index][2]][self.cent_index[index][3]] = self.move_center[self.cent_index[index][0]][self.cent_index[index][1]]
+
 
     def find_rev_corr(self,curr_side_col,ref_side):
 
@@ -160,8 +169,9 @@ class Cube:
 
         return corr_ret
 
+
     def get_move_side_index(self):
-        
+
         curr_side_col = self.move_center_id
 
         for side in range(4):
@@ -177,34 +187,40 @@ class Cube:
         # Move from Cube by using move_side_index to move_sides
         for side in range(4):
             for loc in range(3):
-                self.move_side[side][loc] = self.Rubic[self.rubic_switcher.get(self.move_ref[self.switcher_order_side.get(side, "E")], "E")][self.move_side_index[side][loc][0]][self.move_side_index[side][loc][1]]
+                rubic_col_index = self.rubic_switcher.get(self.move_ref[self.switcher_order_side.get(side, "E")], "E")
+                self.move_side[side][loc] = self.Rubic[rubic_col_index][self.move_side_index[side][loc][0]][self.move_side_index[side][loc][1]]
 
         # Move from move_sides to Cube by using move_side_index
         if(self.move_dir is 'C'):
             for side in range(4):
                 for loc in range(3):
-                    self.Rubic[self.rubic_switcher.get(self.move_ref[self.switcher_order_side.get((side + 1)%4, "E")], "E")][self.move_side_index[side][loc][0]][self.move_side_index[side][loc][1]] = self.move_side[side][loc]
+                    clockwise_rotation = (side + 1) % 4
+                    rubic_col_index = self.rubic_switcher.get(self.move_ref[self.switcher_order_side.get(clockwise_rotation, "E")], "E")
+                    self.Rubic[rubic_col_index][self.move_side_index[clockwise_rotation][loc][0]][self.move_side_index[clockwise_rotation][loc][1]] = self.move_side[side][loc]
+
         elif(self.move_dir is 'A'):
             for side in range(4):
                 for loc in range(3):
-                    self.Rubic[self.rubic_switcher.get(self.move_ref[self.switcher_order_side.get((side + 3)%4, "E")], "E")][self.move_side_index[side][loc][0]][self.move_side_index[side][loc][1]] = self.move_side[side][loc]
+                    anticlockwise_rotation = (side + 3) % 4
+                    rubic_col_index = self.rubic_switcher.get(self.move_ref[self.switcher_order_side.get(anticlockwise_rotation, "E")], "E")
+                    self.Rubic[rubic_col_index][self.move_side_index[anticlockwise_rotation][loc][0]][self.move_side_index[anticlockwise_rotation][loc][1]] = self.move_side[side][loc]
 
     def make_move(self,ref_center,ref_up_center,move_id_given):
-        
-        # The Main Function where the move is performed
+
+        # The Main Function where the move is perform
         self.move_dir = 'C'
         move_id_make = move_id_given[0]
-        
+
         if len(move_id_given) is 2:
             self.move_dir = 'A'
 
         self.move_ref['FRONT'] = ref_center
-        self.move_ref['BACK'] = self.get_opp_center_block(ref_center)
-        self.move_ref['UP'] = ref_up_center
-        self.move_ref['DOWN'] = self.get_opp_center_block(ref_up_center)
-        self.move_ref['LEFT'] = self.get_right_or_left_center_block('LEFT',ref_center,ref_up_center)
-        self.move_ref['RIGHT'] = self.get_right_or_left_center_block('RIGHT',ref_center,ref_up_center)
-        
+        self.move_ref['BACK']  = self.get_opp_center_block(ref_center)
+        self.move_ref['UP']    = ref_up_center
+        self.move_ref['DOWN']  = self.get_opp_center_block(ref_up_center)
+        self.move_ref['LEFT']  = self.get_right_or_left_center_block('LEFT', ref_center,ref_up_center)
+        self.move_ref['RIGHT'] = self.get_right_or_left_center_block('RIGHT', ref_center,ref_up_center)
+
         self.move_center_id = self.move_ref[self.move_conversion[move_id_make]]
 
         self.update_move_ref()
