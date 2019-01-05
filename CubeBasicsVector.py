@@ -1,5 +1,7 @@
-import copy
+# Basic Abstraction of a Rubics Cube and Possible Moves 
+# by Arnav Mandal and Ayan Sinha Mahapatra 
 
+import copy
 
 cube_row = 3
 cube_column = 3
