@@ -69,6 +69,10 @@ class algorithm:
 		self.cursor.execute(query, update_args)
 		self.db.commit()
 
+	def query(self, query, query_args):
+		self.cursor.execute(query, query_args)
+		return self.cursor.fetchall()
+
 	# algo_solve.insert("insert into input_cube_edge 
 	# (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) 
 	# values ('RG','1','0','0','1','R','G')")
@@ -136,10 +140,16 @@ class algorithm:
 
 			
 			if piece_type is 'C':
-				self.update("UPDATE input_cube_edge SET ColorPresent_1 = %s, ColorPresent_2 = %s, ColorPresent_3 = %s WHERE ColorCode = %s;", update_args)	
+				self.update("UPDATE input_cube_corner SET ColorPresent_1 = %s, ColorPresent_2 = %s, ColorPresent_3 = %s WHERE ColorCode = %s;", update_args)
 			else :
 				self.update("UPDATE input_cube_edge SET ColorPresent_1 = %s, ColorPresent_2 = %s WHERE ColorCode = %s;", update_args)
 
+	def scramble_random1(self, cube_scrmbl):
+
+		scramble = "FB"
+		for c in scramble:
+			cube_scrmbl.make_move('W','R',c)
+		return cube_scrmbl
 
 	def scramble_random(self,cube_scrmbl):
 
@@ -148,19 +158,19 @@ class algorithm:
 		# No of random scrambles
 		num_rand_scramble = 50
 
-		rand_moves_ref_center = np.ceil(np.random.rand(num_rand_scramble)*6)
-		rand_moves_ref_up_center = np.ceil(np.random.rand(num_rand_scramble)*6)
-		rand_moves_move_face = np.ceil(np.random.rand(num_rand_scramble)*6)
-		rand_moves_move_direction = np.ceil(np.random.rand(num_rand_scramble)*2)
+		rand_moves_ref_center = np.floor(np.random.rand(num_rand_scramble)*6)
+		rand_moves_ref_up_center = np.floor(np.random.rand(num_rand_scramble)*6)
+		rand_moves_move_face = np.floor(np.random.rand(num_rand_scramble)*6)
+		rand_moves_move_direction = np.floor(np.random.rand(num_rand_scramble)*2)
 
 		for move_rand in range(num_rand_scramble):
 			ref_center = self.inv_rubic_switcher.get(int(rand_moves_ref_center[move_rand]), "E")
 			ref_up_center = self.inv_rubic_switcher.get(int(rand_moves_ref_up_center[move_rand]), "E")
 			move_id_given = self.dir_switcher.get(int(rand_moves_move_face[move_rand]), "E")
-			if (rand_moves_move_direction[move_rand]) is 1:
+			if (int(rand_moves_move_direction[move_rand])) == 1:
 				move_id_given = move_id_given + 'i'
-			cube_scrmbl.make_movdbc = ("localhost","root","1234","users")
-
+			print(str(int(rand_moves_ref_center[move_rand]))+" "+str(int(rand_moves_ref_up_center[move_rand]))+" "+str(int(rand_moves_move_face[move_rand]))+" "+ str(int(rand_moves_move_direction[move_rand]))+" "+move_id_given)
+			cube_scrmbl.make_move(ref_center, ref_up_center, move_id_given)
 
 		# perform random scramble
 
@@ -176,21 +186,109 @@ class algorithm:
 
 		return cube_input
 
-	def check_state(self,state,cube_to_check):
 
-		# If ret_flag is 1 then present state is satisfied acc. to state_flag
-		ret_flag = 1
+	def check_state_one(self, unsolved_cube):
 
-		state_flag = self.check_state_flags.get(state, "E")
+		result = self.query(
+			"SELECT ColorCode, ColorPresent_1, ColorPresent_2 FROM input_cube_edge WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s;",
+			(self.cube_edges_col[0], self.cube_edges_col[1], self.cube_edges_col[2], self.cube_edges_col[3]))
 
-		for colors_cube in range(6):
-			for x_index in range(3):
-				for y_index in range(3):
-					if state_flag[colors_cube][x_index][y_index] is 1:
-						if (cube_to_check[colors_cube][x_index][y_index] != self.solved_cube[colors_cube][x_index][y_index]):
-							return 0
+		for ColorCode, ColorPresent_1, ColorPresent_2 in result:
+			if ColorCode[0] != ColorPresent_1 or ColorCode[1] != ColorPresent_2:
+				return 0
 
-		return ret_flag
+		return 1
+
+	def check_state_two(self, unsolved_cube) :
+
+		result = self.query("SELECT ColorCode, ColorPresent_1, ColorPresent_2, ColorPresent_3 FROM input_cube_corner WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s ;",
+			(self.cube_corners_col[0], self.cube_corners_col[1], self.cube_corners_col[2], self.cube_corners_col[3]))
+
+		for ColorCode, ColorPresent_1, ColorPresent_2, ColorPresent_3 in result:
+			if ColorCode[0] != ColorPresent_1 or ColorCode[1] != ColorPresent_2 or ColorCode[2] != ColorPresent_3 :
+				return 0
+
+		return 1
+
+	def check_state_three(self, unsolved_cube):
+
+		result = self.query(
+			"SELECT ColorCode, ColorPresent_1, ColorPresent_2 FROM input_cube_edge WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s ",
+			(self.cube_edges_col[4], self.cube_edges_col[5], self.cube_edges_col[6], self.cube_edges_col[7]))
+
+		for ColorCode, ColorPresent_1, ColorPresent_2 in result:
+			if ColorCode[0] != ColorPresent_1 or ColorCode[1] != ColorPresent_2:
+				return 0
+
+		return 1
+
+	def check_state_four(self, unsolved_cube):
+
+		result = self.query(
+			"SELECT ColorCode, ColorPresent_1 FROM input_cube_edge WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s ",
+			(self.cube_edges_col[8], self.cube_edges_col[9], self.cube_edges_col[10], self.cube_edges_col[11]))
+
+		for ColorCode, ColorPresent_1 in result:
+			if ColorCode[0] != ColorPresent_1 :
+				return 0
+
+		return 1
+
+	def check_state_five(self, unsolved_cube):
+
+		result = self.query(
+			"SELECT ColorCode, ColorPresent_1 FROM input_cube_corner WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s ",
+			(self.cube_corners_col[4], self.cube_corners_col[5], self.cube_corners_col[6], self.cube_corners_col[7]))
+
+		for ColorCode, ColorPresent_1 in result:
+			if ColorCode[0] != ColorPresent_1 :
+				return 0
+
+		return 1
+
+	def check_state_six(self, unsolved_cube):
+
+		result = self.query(
+			"SELECT ColorCode, ColorPresent_1, ColorPresent_2, ColorPresent_3 FROM input_cube_corner WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s ",
+			(self.cube_corners_col[4], self.cube_corners_col[5], self.cube_corners_col[6], self.cube_corners_col[7]))
+
+		for ColorCode, ColorPresent_1, ColorPresent_2, ColorPresent_3 in result:
+			if ColorCode[0] != ColorPresent_1 or ColorCode[1] != ColorPresent_2 or ColorCode[2] != ColorPresent_3:
+				return 0
+
+		return 1
+
+	def check_state_seven(self, unsolved_cube):
+
+		result = self.query(
+			"SELECT ColorCode, ColorPresent_1, ColorPresent_2 FROM input_cube_edge WHERE ColorCode = %s OR ColorCode = %s OR ColorCode = %s OR ColorCode = %s ",
+			(self.cube_edges_col[8], self.cube_edges_col[9], self.cube_edges_col[10], self.cube_edges_col[11]))
+
+		for ColorCode, ColorPresent_1, ColorPresent_2 in result:
+			if ColorCode[0] != ColorPresent_1 or ColorCode[1] != ColorPresent_2:
+				return 0
+
+		return 1
+
+
+	def check_state(self, cube_to_check):
+
+		if ~self.check_state_one(cube_to_check):
+			return 1
+		if ~self.check_state_two(cube_to_check):
+			return 2
+		if ~self.check_state_three(cube_to_check):
+			return 3
+		if ~self.check_state_four(cube_to_check):
+			return 4
+		if ~self.check_state_five(cube_to_check):
+			return 5
+		if ~self.check_state_six(cube_to_check):
+			return 6
+		if ~self.check_state_seven(cube_to_check):
+			return 7
+		return 8
+
 
 	# 1. Getting the white cross (White Edges) [Solving white Edges]
 	# def solve_state_one(unsolved_cube,string_solved_cube):
@@ -245,19 +343,18 @@ class algorithm:
 	def solve(self,unsolved_cube):
 
 		solution = "E"
+		state = 1
+		counter = 1
 
-		for state in range(1,8):
-			if self.check_state(state,unsolved_cube) is 0:
-				if self.check_state(state-1,unsolved_cube) is 1:
-					# If cube doesn't satisfy this state but satisfies previous state conditions
-					self.solve_state_main(state,unsolved_cube,string_solved_cube)
-				else:
-					# This is encountered if wrong moves result in Cube going into previous states
-					print("Problem Algorithm Not Stable Exit at State ")
-					print(state)
-					state = state - 2
-			else:
-				# This is encountered if the cube already satisfies current state
-				print("State "+state+" is solved")
+		while state != 8 :
+
+			next_state = self.check_state(state,unsolved_cube)
+
+			self.solve_state_main(next_state,unsolved_cube,solution)
+
+			counter = counter + 1
+			if counter is 10 :
+				print("Error Counter 10")
+				return 'E'
 
 		return solution

@@ -6,7 +6,18 @@ def driver():
 
 	algo = algorithm()
 	cube = Cube()
-	algo.insert_to_db_from_cube(cube, 'S')
+	cube_scramble = algo.scramble_random1(cube)
+	algo.update_db_from_cube(cube_scramble, 'E')
+	algo.update_db_from_cube(cube_scramble, 'C')
+	#algo.insert_to_db_from_cube(cube_scramble,'U')
+	print(algo.check_state_one(cube_scramble))
+	print(algo.check_state_two(cube_scramble))
+	print(algo.check_state_three(cube_scramble))
+	print(algo.check_state_four(cube_scramble))
+	print(algo.check_state_five(cube_scramble))
+	print(algo.check_state_six(cube_scramble))
+	print(algo.check_state_seven(cube_scramble))
+
 	# solve_mode : 0 - input and solve, 1 - random scramble and solve
 	#
 	# solve_mode = 1
