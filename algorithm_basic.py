@@ -35,15 +35,15 @@ class algorithm:
             5 : 'B',
     }
 
-    cube_edges_col = ['WR','WG','WO','WB','RG','GO','OB','BR','YR','YG','YO','YB']
+	cube_edges_col = ['WR','WG','WO','WB','RG','GO','OB','BR','YR','YG','YO','YB']
 
-    cube_edges_index = [[1,2,0,1],[2,1,0,1],[1,0,2,1],[0,1,2,1],
+	cube_edges_index = [[1,2,0,1],[2,1,0,1],[1,0,2,1],[0,1,2,1],
     				   [1,0,1,2],[1,0,1,0],[1,2,1,0],[1,2,1,2],
     				   [1,2,2,1],[0,1,2,1],[1,0,0,1],[2,1,0,1]]
 
-    cube_corners_col = ['WRG','WGO','WOB','WBR','YRG','YGO','YOB','YBR']
+	cube_corners_col = ['WRG','WGO','WOB','WBR','YRG','YGO','YOB','YBR']
 
-    cube_corners_index = [[2,2,0,0,0,2],[2,0,0,0,2,0],[0,0,2,2,2,0],[0,2,2,2,0,2],
+	cube_corners_index = [[2,2,0,0,0,2],[2,0,0,0,2,0],[0,0,2,2,2,0],[0,2,2,2,0,2],
     				   [0,2,2,0,2,2],[0,0,2,0,0,0],[2,0,0,2,0,0],[2,2,0,2,2,2]]
 
 	def __init__(self):
@@ -86,19 +86,19 @@ class algorithm:
 			if piece_type is 'C':
 				ColorCode = self.cube_corners_col[itr]
 				input_args = (ColorCode, 
-							   cube_corners_index[itr][0], cube_corners_index[itr][1], cube_corners_index[itr][2]
-							   cube_corners_index[itr][3], cube_corners_index[itr][4], cube_corners_index[itr][5]
-							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_corners_index[itr][0]][cube_corners_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_corners_index[itr][2]][cube_corners_index[itr][3]],
-						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][cube_corners_index[itr][4]][cube_corners_index[itr][5]])
+							   self.cube_corners_index[itr][0], self.cube_corners_index[itr][1], self.cube_corners_index[itr][2],
+							   self.cube_corners_index[itr][3], self.cube_corners_index[itr][4], self.cube_corners_index[itr][5],
+							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_corners_index[itr][0]][self.cube_corners_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_corners_index[itr][2]][self.cube_corners_index[itr][3]],
+						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][self.cube_corners_index[itr][4]][self.cube_corners_index[itr][5]])
 
 			else :
 				ColorCode = self.cube_edges_col[itr]
 				input_args = (ColorCode,
 							   cube_edges_index[itr][0], cube_edges_index[itr][1],
 							   cube_edges_index[itr][2], cube_edges_index[itr][3],
-							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_edges_index[itr][0]][cube_edges_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_edges_index[itr][2]][cube_edges_index[itr][3]])
+							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_edges_index[itr][0]][self.cube_edges_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_edges_index[itr][2]][self.cube_edges_index[itr][3]])
 				
 
 			if cube_type is 'S':
@@ -128,15 +128,15 @@ class algorithm:
 
 			if piece_type is 'C':
 				ColorCode = self.cube_corners_col[itr]
-				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_corners_index[itr][0]][cube_corners_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_corners_index[itr][2]][cube_corners_index[itr][3]],
-						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][cube_corners_index[itr][4]][cube_corners_index[itr][5]],
+				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_corners_index[itr][0]][self.cube_corners_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_corners_index[itr][2]][self.cube_corners_index[itr][3]],
+						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][self.cube_corners_index[itr][4]][self.cube_corners_index[itr][5]],
 						       ColorCode)
 
 			else :
 				ColorCode = self.cube_edges_col[itr]
-				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_edges_index[itr][0]][cube_edges_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_edges_index[itr][2]][cube_edges_index[itr][3]],
+				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_edges_index[itr][0]][self.cube_edges_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_edges_index[itr][2]][self.cube_edges_index[itr][3]],
 						       ColorCode)
 				
 
