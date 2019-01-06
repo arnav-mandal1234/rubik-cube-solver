@@ -3,7 +3,8 @@ from algorithm_basic import algorithm
 
 def driver():
 
-	# solve_mode : 0 - input and solve, 1 - random scramble and solve
+
+	solve_mode : 0 - input and solve, 1 - random scramble and solve
 
 	solve_mode = 1
 
@@ -18,3 +19,5 @@ def driver():
 	solve_moves = algo_solve.solve(cube_solve)
 
 	print(solve_moves)
+
+driver()

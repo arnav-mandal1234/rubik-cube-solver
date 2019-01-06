@@ -16,26 +16,6 @@ from CubeBasicsVector import Cube
 
 class algorithm:
 
-	def __init__(self):
-		try:
-			self.db = mysql.connector.connect(user='root', password='root',
-	                                 host='localhost',
-	                                 database='cube_solver')
-		except mysql.connector.Error as err:
-			  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-			  		print("Something is wrong with your user name or password")
-			  elif err.errno == errorcode.ER_BAD_DB_ERROR:
-			    	print("Database does not exist")
-			  else:
-			    	print(err)
-		else:
-			  self.cursor = self.db.cursor()
-
-	def insert(self, sql):
-		self.cursor.execute(sql)
-		self.db.commit()
-		return
-
 	solved_cube = Cube()
 
 	inv_rubic_switcher = {
@@ -54,6 +34,118 @@ class algorithm:
             4 : 'F',
             5 : 'B',
     }
+
+    cube_edges_col = ['WR','WG','WO','WB','RG','GO','OB','BR','YR','YG','YO','YB']
+
+    cube_edges_index = [[1,2,0,1],[2,1,0,1],[1,0,2,1],[0,1,2,1],
+    				   [1,0,1,2],[1,0,1,0],[1,2,1,0],[1,2,1,2],
+    				   [1,2,2,1],[0,1,2,1],[1,0,0,1],[2,1,0,1]]
+
+    cube_corners_col = ['WRG','WGO','WOB','WBR','YRG','YGO','YOB','YBR']
+
+    cube_corners_index = [[2,2,0,0,0,2],[2,0,0,0,2,0],[0,0,2,2,2,0],[0,2,2,2,0,2],
+    				   [0,2,2,0,2,2],[0,0,2,0,0,0],[2,0,0,2,0,0],[2,2,0,2,2,2]]
+
+	def __init__(self):
+		try:
+			self.db = mysql.connector.connect(user='root', password='root',
+	                                 host='localhost',
+	                                 database='cube_solver')
+		except mysql.connector.Error as err:
+			  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+			  		print("Something is wrong with your user name or password")
+			  elif err.errno == errorcode.ER_BAD_DB_ERROR:
+			    	print("Database does not exist")
+			  else:
+			    	print(err)
+		else:
+			  self.cursor = self.db.cursor()
+
+	def insert(self, query, insert_args):
+		self.cursor.execute(sql, insert_args)
+		self.db.commit()
+
+	def update(self, query, update_args):
+		self.cursor.execute(sql, update_args)
+		self.db.commit()
+
+	# algo_solve.insert("insert into input_cube_edge 
+	# (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) 
+	# values ('RG','1','0','0','1','R','G')")
+
+	# cube_type : U is input, S is solved
+	# piece-type : 'C' is corner, 'E'is edge
+	def insert_to_db_from_cube(self, cube, piece_type, cube_type):
+
+		max_itr = 12
+		if piece_type is 'C':
+			max_itr = 8
+
+		for itr in range(max_itr):
+
+			if piece_type is 'C':
+				ColorCode = self.cube_corners_col[itr]
+				input_args = (ColorCode, 
+							   cube_corners_index[itr][0], cube_corners_index[itr][1], cube_corners_index[itr][2]
+							   cube_corners_index[itr][3], cube_corners_index[itr][4], cube_corners_index[itr][5]
+							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_corners_index[itr][0]][cube_corners_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_corners_index[itr][2]][cube_corners_index[itr][3]],
+						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][cube_corners_index[itr][4]][cube_corners_index[itr][5]])
+
+			else :
+				ColorCode = self.cube_edges_col[itr]
+				input_args = (ColorCode,
+							   cube_edges_index[itr][0], cube_edges_index[itr][1],
+							   cube_edges_index[itr][2], cube_edges_index[itr][3],
+							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_edges_index[itr][0]][cube_edges_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_edges_index[itr][2]][cube_edges_index[itr][3]])
+				
+
+			if cube_type is 'S':
+				if piece_type is 'C':
+					self.insert("INSERT INTO solved_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorIndex_x3, ColorIndex_y3, ColorPresent_1, ColorPresent_2, ColorPresent_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", input_args)
+				else : 
+					self.insert("INSERT INTO solved_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) VALUES (%s, %s, %s, %s, %s, %s, %s)", input_args)
+			else :
+				if piece_type is 'C':
+					self.insert("INSERT INTO input_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorIndex_x3, ColorIndex_y3, ColorPresent_1, ColorPresent_2, ColorPresent_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", input_args)	
+				else :
+					self.insert("INSERT INTO input_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) VALUES (%s, %s, %s, %s, %s, %s, %s)", input_args)
+
+
+
+
+
+	# cube is always unsolved, solve cube is never updated
+	# piece-type : 'C' is corner, 'E'is edge
+	def update_db_from_cube(self, cube, piece_type):
+
+		max_itr = 12
+		if piece_type is 'C':
+			max_itr = 8
+
+		for itr in range(max_itr):
+
+			if piece_type is 'C':
+				ColorCode = self.cube_corners_col[itr]
+				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_corners_index[itr][0]][cube_corners_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_corners_index[itr][2]][cube_corners_index[itr][3]],
+						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][cube_corners_index[itr][4]][cube_corners_index[itr][5]],
+						       ColorCode)
+
+			else :
+				ColorCode = self.cube_edges_col[itr]
+				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][cube_edges_index[itr][0]][cube_edges_index[itr][1]],
+						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][cube_edges_index[itr][2]][cube_edges_index[itr][3]],
+						       ColorCode)
+				
+
+			
+			if piece_type is 'C':
+				self.update("UPDATE input_cube_edge SET ColorPresent_1 = %s, ColorPresent_2 = %s, ColorPresent_3 = %s WHERE ColorCode = %s;", update_args)	
+			else :
+				self.update("UPDATE input_cube_edge SET ColorPresent_1 = %s, ColorPresent_2 = %s WHERE ColorCode = %s;", update_args)
+
 
 	def scramble_random(self,cube_scrmbl):
 
