@@ -62,11 +62,11 @@ class algorithm:
 			  self.cursor = self.db.cursor()
 
 	def insert(self, query, insert_args):
-		self.cursor.execute(sql, insert_args)
+		self.cursor.execute(query, insert_args)
 		self.db.commit()
 
 	def update(self, query, update_args):
-		self.cursor.execute(sql, update_args)
+		self.cursor.execute(query, update_args)
 		self.db.commit()
 
 	# algo_solve.insert("insert into input_cube_edge 
@@ -74,43 +74,37 @@ class algorithm:
 	# values ('RG','1','0','0','1','R','G')")
 
 	# cube_type : U is input, S is solved
-	# piece-type : 'C' is corner, 'E'is edge
-	def insert_to_db_from_cube(self, cube, piece_type, cube_type):
+	def insert_to_db_from_cube(self, cube, cube_type):
 
 		max_itr = 12
-		if piece_type is 'C':
-			max_itr = 8
 
 		for itr in range(max_itr):
 
-			if piece_type is 'C':
+			if itr < 8:
 				ColorCode = self.cube_corners_col[itr]
-				input_args = (ColorCode, 
-							   self.cube_corners_index[itr][0], self.cube_corners_index[itr][1], self.cube_corners_index[itr][2],
-							   self.cube_corners_index[itr][3], self.cube_corners_index[itr][4], self.cube_corners_index[itr][5],
-							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_corners_index[itr][0]][self.cube_corners_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_corners_index[itr][2]][self.cube_corners_index[itr][3]],
-						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][self.cube_corners_index[itr][4]][self.cube_corners_index[itr][5]])
+				input_args_corners = (ColorCode,
+								   self.cube_corners_index[itr][0], self.cube_corners_index[itr][1], self.cube_corners_index[itr][2],
+								   self.cube_corners_index[itr][3], self.cube_corners_index[itr][4], self.cube_corners_index[itr][5],
+								   cube.Rubic[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_corners_index[itr][0]][self.cube_corners_index[itr][1]],
+								   cube.Rubic[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_corners_index[itr][2]][self.cube_corners_index[itr][3]],
+								   cube.Rubic[cube.rubic_switcher.get(ColorCode[2],'E')][self.cube_corners_index[itr][4]][self.cube_corners_index[itr][5]])
 
-			else :
-				ColorCode = self.cube_edges_col[itr]
-				input_args = (ColorCode,
-							   cube_edges_index[itr][0], cube_edges_index[itr][1],
-							   cube_edges_index[itr][2], cube_edges_index[itr][3],
-							   cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_edges_index[itr][0]][self.cube_edges_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_edges_index[itr][2]][self.cube_edges_index[itr][3]])
+			ColorCode = self.cube_edges_col[itr]
+			input_args_edges = (ColorCode,
+								self.cube_edges_index[itr][0], self.cube_edges_index[itr][1],
+								self.cube_edges_index[itr][2], self.cube_edges_index[itr][3],
+							   cube.Rubic[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_edges_index[itr][0]][self.cube_edges_index[itr][1]],
+							   cube.Rubic[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_edges_index[itr][2]][self.cube_edges_index[itr][3]])
 				
 
 			if cube_type is 'S':
-				if piece_type is 'C':
-					self.insert("INSERT INTO solved_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorIndex_x3, ColorIndex_y3, ColorPresent_1, ColorPresent_2, ColorPresent_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", input_args)
-				else : 
-					self.insert("INSERT INTO solved_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) VALUES (%s, %s, %s, %s, %s, %s, %s)", input_args)
+				if itr < 8:
+					self.insert("INSERT INTO solved_cube_corner (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorIndex_x3, ColorIndex_y3, ColorPresent_1, ColorPresent_2, ColorPresent_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", input_args_corners)
+				self.insert("INSERT INTO solved_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) VALUES (%s, %s, %s, %s, %s, %s, %s)", input_args_edges)
 			else :
-				if piece_type is 'C':
-					self.insert("INSERT INTO input_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorIndex_x3, ColorIndex_y3, ColorPresent_1, ColorPresent_2, ColorPresent_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", input_args)	
-				else :
-					self.insert("INSERT INTO input_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) VALUES (%s, %s, %s, %s, %s, %s, %s)", input_args)
+				if itr < 8:
+					self.insert("INSERT INTO input_cube_corner (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorIndex_x3, ColorIndex_y3, ColorPresent_1, ColorPresent_2, ColorPresent_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", input_args_corners)
+				self.insert("INSERT INTO input_cube_edge (ColorCode, ColorIndex_x1, ColorIndex_y1, ColorIndex_x2, ColorIndex_y2, ColorPresent_1, ColorPresent_2) VALUES (%s, %s, %s, %s, %s, %s, %s)", input_args_edges)
 
 
 
@@ -128,15 +122,15 @@ class algorithm:
 
 			if piece_type is 'C':
 				ColorCode = self.cube_corners_col[itr]
-				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_corners_index[itr][0]][self.cube_corners_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_corners_index[itr][2]][self.cube_corners_index[itr][3]],
-						       cube.Rubics[cube.rubic_switcher.get(ColorCode[2],'E')][self.cube_corners_index[itr][4]][self.cube_corners_index[itr][5]],
+				update_args = (cube.Rubic[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_corners_index[itr][0]][self.cube_corners_index[itr][1]],
+						 	   cube.Rubic[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_corners_index[itr][2]][self.cube_corners_index[itr][3]],
+						       cube.Rubic[cube.rubic_switcher.get(ColorCode[2],'E')][self.cube_corners_index[itr][4]][self.cube_corners_index[itr][5]],
 						       ColorCode)
 
 			else :
 				ColorCode = self.cube_edges_col[itr]
-				update_args = (cube.Rubics[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_edges_index[itr][0]][self.cube_edges_index[itr][1]],
-						 	   cube.Rubics[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_edges_index[itr][2]][self.cube_edges_index[itr][3]],
+				update_args = (cube.Rubic[cube.rubic_switcher.get(ColorCode[0],'E')][self.cube_edges_index[itr][0]][self.cube_edges_index[itr][1]],
+						 	   cube.Rubic[cube.rubic_switcher.get(ColorCode[1],'E')][self.cube_edges_index[itr][2]][self.cube_edges_index[itr][3]],
 						       ColorCode)
 				
 
