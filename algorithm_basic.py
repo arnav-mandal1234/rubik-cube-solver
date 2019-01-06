@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+import mysql.connector
 from CubeBasicsVector import Cube
 
 # Beginner's Rubics Cube Algorithm
@@ -13,7 +14,27 @@ from CubeBasicsVector import Cube
 # 6. Getting the third layer corner pieces (Yellow Corners aligned) [Solving yellow Corners wrt. cube]
 # 7. Finishing the cube (All Done) [Solving Yellow Edges wrt. Cube]
 
-class algorithm():
+class algorithm:
+
+	def __init__(self):
+		try:
+			self.db = mysql.connector.connect(user='root', password='root',
+	                                 host='localhost',
+	                                 database='cube_solver')
+		except mysql.connector.Error as err:
+			  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+			  		print("Something is wrong with your user name or password")
+			  elif err.errno == errorcode.ER_BAD_DB_ERROR:
+			    	print("Database does not exist")
+			  else:
+			    	print(err)
+		else:
+			  self.cursor = self.db.cursor()
+
+	def insert(self, sql):
+		self.cursor.execute(sql)
+		self.db.commit()
+		return
 
 	solved_cube = Cube()
 
@@ -25,8 +46,7 @@ class algorithm():
             4 : 'B',
             5 : 'Y',
     }
-
-    dir_switcher = {
+	dir_switcher = {
     		0 : 'U',
             1 : 'D',
             2 : 'L',
@@ -35,61 +55,9 @@ class algorithm():
             5 : 'B',
     }
 
-	# Order W R G O B Y
-    check_state_flags = {
-            1: [[[0,1,0], [1,1,1], [0,1,0]],
-            	[[0,1,0], [0,1,0], [0,0,0]],
-            	[[0,1,0], [0,1,0], [0,0,0]],
-            	[[0,0,0], [0,1,0], [0,1,0]],
-            	[[0,0,0], [0,1,0], [0,1,0]],
-            	[[0,0,0], [0,1,0], [0,0,0]]],
-
-            2: [[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [0,1,0], [0,0,0]],
-            	[[1,1,1], [0,1,0], [0,0,0]],
-            	[[0,0,0], [0,1,0], [1,1,1]],
-            	[[0,0,0], [0,1,0], [1,1,1]],
-            	[[0,0,0], [0,1,0], [0,0,0]]],
-
-            3: [[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [0,0,0]],
-            	[[1,1,1], [1,1,1], [0,0,0]],
-            	[[0,0,0], [1,1,1], [1,1,1]],
-            	[[0,0,0], [1,1,1], [1,1,1]],
-            	[[0,0,0], [0,1,0], [0,0,0]]],
-
-            4: [[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [0,0,0]],
-            	[[1,1,1], [1,1,1], [0,0,0]],
-            	[[0,0,0], [1,1,1], [1,1,1]],
-            	[[0,0,0], [1,1,1], [1,1,1]],
-            	[[0,1,0], [1,1,1], [0,1,0]]],
-
-            5: [[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [0,0,0]],
-            	[[1,1,1], [1,1,1], [0,0,0]],
-            	[[0,0,0], [1,1,1], [1,1,1]],
-            	[[0,0,0], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]]],
-
-            6: [[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,0,1]],
-            	[[1,1,1], [1,1,1], [1,0,1]],
-            	[[1,0,1], [1,1,1], [1,1,1]],
-            	[[1,0,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]]],
-
-            7: [[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]],
-            	[[1,1,1], [1,1,1], [1,1,1]]],
-    }
-
 	def scramble_random(self,cube_scrmbl):
 
-		string random_scramble_moves = "E"
+		random_scramble_moves = "E"
 
 		# No of random scrambles
 		num_rand_scramble = 50
@@ -105,7 +73,8 @@ class algorithm():
 			move_id_given = self.dir_switcher.get(int(rand_moves_move_face[move_rand]), "E")
 			if (rand_moves_move_direction[move_rand]) is 1:
 				move_id_given = move_id_given + 'i'
-			cube_scrmbl.make_move(ref_center,ref_up_center,move_id_given)
+			cube_scrmbl.make_movdbc = ("localhost","root","1234","users")
+
 
 		# perform random scramble
 
@@ -138,31 +107,30 @@ class algorithm():
 		return ret_flag
 
 	# 1. Getting the white cross (White Edges) [Solving white Edges]
-	def solve_state_one(unsolved_cube,string_solved_cube):
-	
-
-	# 2. Getting the 1st Layer (All Whites)[Solving White Corners]
-	def solve_state_two(unsolved_cube,string_solved_cube):
-	
-
-	# 3. Getting the second/middle layer (White + 2 columns of 4 sides adj. to white) [Solving 4 Edges]
-	def solve_state_three(unsolved_cube,string_solved_cube):
-	
-
-	# 4. Getting the yellow cross (Yellow Edges) [Solving 4 yellow edges]
-	def solve_state_four(unsolved_cube,string_solved_cube):
-	
-
-	# 5. Getting the Yellow Face (Yellow Face whole) [Solving 4 yellow corners]
-	def solve_state_five(unsolved_cube,string_solved_cube):
-	
-
-	# 6. Getting the third layer corner pieces (Yellow Corners aligned) [Solving yellow Corners wrt. cube]
-	def solve_state_six(unsolved_cube,string_solved_cube):
-	
-
-	# 7. Finishing the cube (All Done) [Solving Yellow Edges wrt. Cube]
-	def solve_state_seven(unsolved_cube,string_solved_cube):
+	# def solve_state_one(unsolved_cube,string_solved_cube):
+	#
+	# # 2. Getting the 1st Layer (All Whites)[Solving White Corners]
+	# def solve_state_two(unsolved_cube,string_solved_cube):
+	#
+	#
+	# # 3. Getting the second/middle layer (White + 2 columns of 4 sides adj. to white) [Solving 4 Edges]
+	# def solve_state_three(unsolved_cube,string_solved_cube):
+	#
+	#
+	# # 4. Getting the yellow cross (Yellow Edges) [Solving 4 yellow edges]
+	# def solve_state_four(unsolved_cube,string_solved_cube):
+	#
+	#
+	# # 5. Getting the Yellow Face (Yellow Face whole) [Solving 4 yellow corners]
+	# def solve_state_five(unsolved_cube,string_solved_cube):
+	#
+	#
+	# # 6. Getting the third layer corner pieces (Yellow Corners aligned) [Solving yellow Corners wrt. cube]
+	# def solve_state_six(unsolved_cube,string_solved_cube):
+	#
+	#
+	# # 7. Finishing the cube (All Done) [Solving Yellow Edges wrt. Cube]
+	# def solve_state_seven(unsolved_cube,string_solved_cube):
 
 
 	def solve_state_main(self,state,unsolved_cube,string_solved_cube):
@@ -190,7 +158,7 @@ class algorithm():
 
 	def solve(self,unsolved_cube):
 
-		string solution = "E"
+		solution = "E"
 
 		for state in range(1,8):
 			if self.check_state(state,unsolved_cube) is 0:
@@ -198,12 +166,12 @@ class algorithm():
 					# If cube doesn't satisfy this state but satisfies previous state conditions
 					self.solve_state_main(state,unsolved_cube,string_solved_cube)
 				else:
-					# This is encountered if wrong moves result in Cube going into previous states 
+					# This is encountered if wrong moves result in Cube going into previous states
 					print("Problem Algorithm Not Stable Exit at State ")
 					print(state)
 					state = state - 2
 			else:
 				# This is encountered if the cube already satisfies current state
 				print("State "+state+" is solved")
-		
-	return solution
+
+		return solution
