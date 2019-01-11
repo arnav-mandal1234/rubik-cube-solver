@@ -146,43 +146,43 @@ class algorithm:
 
 	def scramble_random1(self, cube_scrmbl):
 
-		scramble = "FB"
+		scramble = "RLRLUBDRLRLDDDRRR"
 		for c in scramble:
 			cube_scrmbl.make_move('W','R',c)
 		return cube_scrmbl
 
-	def scramble_random(self,cube_scrmbl):
-
-		random_scramble_moves = "E"
-
-		# No of random scrambles
-		num_rand_scramble = 50
-
-		rand_moves_ref_center = np.floor(np.random.rand(num_rand_scramble)*6)
-		rand_moves_ref_up_center = np.floor(np.random.rand(num_rand_scramble)*6)
-		rand_moves_move_face = np.floor(np.random.rand(num_rand_scramble)*6)
-		rand_moves_move_direction = np.floor(np.random.rand(num_rand_scramble)*2)
-
-		for move_rand in range(num_rand_scramble):
-			ref_center = self.inv_rubic_switcher.get(int(rand_moves_ref_center[move_rand]), "E")
-			ref_up_center = self.inv_rubic_switcher.get(int(rand_moves_ref_up_center[move_rand]), "E")
-			move_id_given = self.dir_switcher.get(int(rand_moves_move_face[move_rand]), "E")
-			if (int(rand_moves_move_direction[move_rand])) == 1:
-				move_id_given = move_id_given + 'i'
-			print(str(int(rand_moves_ref_center[move_rand]))+" "+str(int(rand_moves_ref_up_center[move_rand]))+" "+str(int(rand_moves_move_face[move_rand]))+" "+ str(int(rand_moves_move_direction[move_rand]))+" "+move_id_given)
-			cube_scrmbl.make_move(ref_center, ref_up_center, move_id_given)
-
-		# perform random scramble
-
-		print("Random Scrambling Moves are -> "+random_scramble_moves)
-
-		return cube_scrmbl
+	# def scramble_random(self,cube_scrmbl):
+	#
+	# 	random_scramble_moves = "E"
+	#
+	# 	# No of random scrambles
+	# 	num_rand_scramble = 50
+	#
+	# 	rand_moves_ref_center = np.floor(np.random.rand(num_rand_scramble)*6)
+	# 	rand_moves_ref_up_center = np.floor(np.random.rand(num_rand_scramble)*6)
+	# 	rand_moves_move_face = np.floor(np.random.rand(num_rand_scramble)*6)
+	# 	rand_moves_move_direction = np.floor(np.random.rand(num_rand_scramble)*2)
+	#
+	# 	for move_rand in range(num_rand_scramble):
+	# 		ref_center = self.inv_rubic_switcher.get(int(rand_moves_ref_center[move_rand]), "E")
+	# 		ref_up_center = self.inv_rubic_switcher.get(int(rand_moves_ref_up_center[move_rand]), "E")
+	# 		move_id_given = self.dir_switcher.get(int(rand_moves_move_face[move_rand]), "E")
+	# 		if (int(rand_moves_move_direction[move_rand])) == 1:
+	# 			move_id_given = move_id_given + 'i'
+	# 		print(str(int(rand_moves_ref_center[move_rand]))+" "+str(int(rand_moves_ref_up_center[move_rand]))+" "+str(int(rand_moves_move_face[move_rand]))+" "+ str(int(rand_moves_move_direction[move_rand]))+" "+move_id_given)
+	# 		cube_scrmbl.make_move(ref_center, ref_up_center, move_id_given)
+	#
+	# 	# perform random scramble
+	#
+	# 	print("Random Scrambling Moves are -> "+random_scramble_moves)
+	#
+	# 	return cube_scrmbl
 
 	def input_cube(self):
 
 		cube_input = Cube()
 
-		# take input
+		# take input\
 
 		return cube_input
 
@@ -273,6 +273,9 @@ class algorithm:
 
 	def check_state(self, cube_to_check):
 
+		self.update_db_from_cube(cube_to_check, 'C')
+		self.update_db_from_cube(cube_to_check, 'E')
+
 		if ~self.check_state_one(cube_to_check):
 			return 1
 		if ~self.check_state_two(cube_to_check):
@@ -289,35 +292,121 @@ class algorithm:
 			return 7
 		return 8
 
+	def find_piece(self, unsolved_cube, piece_type, piece_name):
+
+		self.update_db_from_cube(unsolved_cube, piece_type)
+		if piece_type is 'E':
+			query = self.query(
+				"SELECT ColorCode, ColorPresent_1, ColorPresent_2 FROM input_cube_edge WHERE (ColorPresent_1 = %s AND ColorPresent_2 = %s) OR (ColorPresent_1 = %s AND ColorPresent_2 = %s);",
+				(piece_name[0], piece_name[1], piece_name[1], piece_name[0]))
+
+			result = {'colorcode': query[ColorCode],
+					  'orientation': str(query[ColorPresent_1]) + str(ColorPresent_2)}
+		else :
+			query = self.query(
+				"SELECT ColorCode, ColorPresent_1, ColorPresent_2, ColorPresent_3 FROM input_cube_edge WHERE "
+				"(ColorPresent_1 = %s AND ColorPresent_2 = %s AND ColorPresent_3 = %s) OR "
+				"(ColorPresent_1 = %s AND ColorPresent_2 = %s AND ColorPresent_3 = %s) OR "
+				"(ColorPresent_1 = %s AND ColorPresent_2 = %s AND ColorPresent_3 = %s) OR"
+				"(ColorPresent_1 = %s AND ColorPresent_2 = %s AND ColorPresent_3 = %s) OR "
+				"(ColorPresent_1 = %s AND ColorPresent_2 = %s AND ColorPresent_3 = %s) OR "
+				"(ColorPresent_1 = %s AND ColorPresent_2 = %s AND ColorPresent_3 = %s);",
+				(piece_name[0], piece_name[1], piece_name[2],
+				 piece_name[0], piece_name[2], piece_name[1],
+				 piece_name[1], piece_name[0], piece_name[2],
+				 piece_name[1], piece_name[2], piece_name[0],
+				 piece_name[2], piece_name[0], piece_name[1],
+				 piece_name[2], piece_name[1], piece_name[0]))
+
+			result = {'colorcode' : query[ColorCode],
+					  'orientation' : str(query[ColorPresent_1])+ str(ColorPresent_2)+str(ColorPresent_3)}
+
+		return result
+
 
 	# 1. Getting the white cross (White Edges) [Solving white Edges]
-	# def solve_state_one(unsolved_cube,string_solved_cube):
-	#
+	def solve_state_one(self, unsolved_cube,string_solved_cube):
+
+		for white_edge in range(4):
+
+			cur_edge = self.cube_edges_col[white_edge]
+			result = self.find_piece(unsolved_cube,'E',cur_edge)
+
+			if result['colorcode'][0] is 'W':
+				unsolved_cube.make_move(result['colorcode'][1], 'W', 'F')
+				unsolved_cube.make_move(result['colorcode'][1], 'W', 'F')
+				color_from = result['colorcode'][1]
+
+			elif result['colorcode'][0] is not 'Y':
+				unsolved_cube.make_move(result['colorcode'][0], 'W', 'Fi')
+				unsolved_cube.make_move(result['colorcode'][0], 'W', 'Bi')
+				unsolved_cube.make_move(result['colorcode'][0], 'W', 'F')
+				unsolved_cube.make_move(result['colorcode'][0], 'W', 'B')
+				color_from = result['colorcode'][0]
+			else:
+				color_from = result['colorcode'][1]
+
+			#cur_edge[1] - The face we have to move the edge to
+			#color_from - The Face we have the edge in
+
+			cur_links = unsolved_cube.switcher_links.get(cur_edge[1])
+			rev_cur_links = {v: k for k, v in cur_links.items()}
+			dir_move_from = rev_cur_links[color_from]
+
+			# Move into Correct Face
+			if(dir_move_from is 'LEFT'):
+				unsolved_cube.make_move(cur_edge[1], 'W', 'B')
+			elif(dir_move_from is 'BACK'):
+				unsolved_cube.make_move(cur_edge[1], 'W', 'B')
+				unsolved_cube.make_move(cur_edge[1], 'W', 'B')
+			elif(dir_move_from is 'RIGHT'):
+				unsolved_cube.make_move(cur_edge[1], 'W', 'Bi')
+
+
+			y_links = unsolved_cube.switcher_links.get('Y')
+			rev_y_links = {v: k for k, v in y_links.items()}
+			cur_index = rev_y_links[cur_edge[1]][1]
+
+			if(unsolved_cube.Rubic[cur_edge[1]][cur_index[0]][cur_index[1]]): #Correct Orientation
+				unsolved_cube.make_move(cur_edge[1], 'W', 'Fi')
+				unsolved_cube.make_move(cur_edge[1], 'W', 'Fi')
+			else: #Wrong Orientation
+				unsolved_cube.make_move(cur_edge[1], 'W', 'F')
+				unsolved_cube.make_move(cur_edge[1], 'W', 'U')
+				unsolved_cube.make_move(cur_edge[1], 'W', 'Li')
+				unsolved_cube.make_move(cur_edge[1], 'W', 'Ui')
+
+
+
+
+
+
 	# # 2. Getting the 1st Layer (All Whites)[Solving White Corners]
-	# def solve_state_two(unsolved_cube,string_solved_cube):
+	# def solve_state_two(self, unsolved_cube,string_solved_cube):
 	#
 	#
 	# # 3. Getting the second/middle layer (White + 2 columns of 4 sides adj. to white) [Solving 4 Edges]
-	# def solve_state_three(unsolved_cube,string_solved_cube):
+	# def solve_state_three(self, unsolved_cube,string_solved_cube):
 	#
 	#
 	# # 4. Getting the yellow cross (Yellow Edges) [Solving 4 yellow edges]
-	# def solve_state_four(unsolved_cube,string_solved_cube):
+	# def solve_state_four(self, unsolved_cube,string_solved_cube):
 	#
 	#
 	# # 5. Getting the Yellow Face (Yellow Face whole) [Solving 4 yellow corners]
-	# def solve_state_five(unsolved_cube,string_solved_cube):
+	# def solve_state_five(self, unsolved_cube,string_solved_cube):
 	#
 	#
 	# # 6. Getting the third layer corner pieces (Yellow Corners aligned) [Solving yellow Corners wrt. cube]
-	# def solve_state_six(unsolved_cube,string_solved_cube):
+	# def solve_state_six(self, unsolved_cube,string_solved_cube):
 	#
 	#
 	# # 7. Finishing the cube (All Done) [Solving Yellow Edges wrt. Cube]
-	# def solve_state_seven(unsolved_cube,string_solved_cube):
+	# def solve_state_seven(self, unsolved_cube,string_solved_cube):
 
 
 	def solve_state_main(self,state,unsolved_cube,string_solved_cube):
+
 
 		if state is 1:
 			self.solve_state_one(unsolved_cube,string_solved_cube)

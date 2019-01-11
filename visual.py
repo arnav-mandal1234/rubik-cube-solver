@@ -12,9 +12,6 @@ dir = os.path.dirname(bpy.data.filepath)
 if not dir in sys.path:
     sys.path.append(dir )
 
-# To install kociemba, clone the repository https://github.com/muodov/kociemba and move the "kociemba" folder where your .blend file is
-#import kociemba
-
 bpy.context.scene.render.engine = 'CYCLES'
 
 os.system("cls") # Clearing the console
