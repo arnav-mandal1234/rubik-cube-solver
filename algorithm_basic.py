@@ -83,6 +83,7 @@ class algorithm:
 		max_itr = 12
 
 		for itr in range(max_itr):
+			{'colorcode': u'BR', 'orientation': 'WR'}
 
 			if itr < 8:
 				ColorCode = self.cube_corners_col[itr]
@@ -146,7 +147,7 @@ class algorithm:
 
 	def scramble_random1(self, cube_scrmbl):
 
-		scramble = "RLRLUBDRLRLDDDRRR"
+		scramble = "R"
 		for c in scramble:
 			cube_scrmbl.make_move('W','R',c)
 		return cube_scrmbl
@@ -299,9 +300,8 @@ class algorithm:
 			query = self.query(
 				"SELECT ColorCode, ColorPresent_1, ColorPresent_2 FROM input_cube_edge WHERE (ColorPresent_1 = %s AND ColorPresent_2 = %s) OR (ColorPresent_1 = %s AND ColorPresent_2 = %s);",
 				(piece_name[0], piece_name[1], piece_name[1], piece_name[0]))
-
-			result = {'colorcode': query[ColorCode],
-					  'orientation': str(query[ColorPresent_1]) + str(ColorPresent_2)}
+			result = {'colorcode': query[0][0],
+					  'orientation': str(query[0][1]) + str(query[0][2])}
 		else :
 			query = self.query(
 				"SELECT ColorCode, ColorPresent_1, ColorPresent_2, ColorPresent_3 FROM input_cube_edge WHERE "
@@ -318,8 +318,8 @@ class algorithm:
 				 piece_name[2], piece_name[0], piece_name[1],
 				 piece_name[2], piece_name[1], piece_name[0]))
 
-			result = {'colorcode' : query[ColorCode],
-					  'orientation' : str(query[ColorPresent_1])+ str(ColorPresent_2)+str(ColorPresent_3)}
+			result = {'colorcode' : query[0][0],
+					  'orientation' : str(query[0][1])+ str(query[0][2])+str(query[0][3])}
 
 		return result
 

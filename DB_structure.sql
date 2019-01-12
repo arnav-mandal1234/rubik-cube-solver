@@ -1,3 +1,7 @@
+DROP DATABASE cube_solver;
+CREATE DATABASE cube_solver;
+USE cube_solver;
+
 CREATE TABLE input_cube_edge
 (
     ColorCode varchar(2) NOT NULL PRIMARY KEY,
