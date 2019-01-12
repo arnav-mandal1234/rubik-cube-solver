@@ -141,7 +141,6 @@ class Cube:
     def update_move_ref(self):
 
         links_sides = self.switcher_links.get(self.move_center_id, "E")
-
         self.move_ref['FRONT'] = links_sides['FRONT']
         self.move_ref['BACK']  = links_sides['BACK']
         self.move_ref['UP']    = links_sides['UP']

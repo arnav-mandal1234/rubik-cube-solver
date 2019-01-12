@@ -147,7 +147,7 @@ class algorithm:
 
 	def scramble_random1(self, cube_scrmbl):
 
-		scramble = "R"
+		scramble = "RLDBUR"
 		for c in scramble:
 			cube_scrmbl.make_move('W','R',c)
 		return cube_scrmbl
@@ -330,53 +330,55 @@ class algorithm:
 		for white_edge in range(4):
 
 			cur_edge = self.cube_edges_col[white_edge]
-			result = self.find_piece(unsolved_cube,'E',cur_edge)
+			result = self.find_piece(unsolved_cube, 'E', cur_edge)
+			color_to = cur_edge[1]
 
-			if result['colorcode'][0] is 'W':
+			if result['colorcode'][0] == 'W':
 				unsolved_cube.make_move(result['colorcode'][1], 'W', 'F')
 				unsolved_cube.make_move(result['colorcode'][1], 'W', 'F')
 				color_from = result['colorcode'][1]
 
-			elif result['colorcode'][0] is not 'Y':
+			elif result['colorcode'][0] != 'Y':
 				unsolved_cube.make_move(result['colorcode'][0], 'W', 'Fi')
-				unsolved_cube.make_move(result['colorcode'][0], 'W', 'Bi')
+				unsolved_cube.make_move(result['colorcode'][0], 'W', 'Di')
 				unsolved_cube.make_move(result['colorcode'][0], 'W', 'F')
-				unsolved_cube.make_move(result['colorcode'][0], 'W', 'B')
+				unsolved_cube.make_move(result['colorcode'][0], 'W', 'D')
 				color_from = result['colorcode'][0]
+
 			else:
 				color_from = result['colorcode'][1]
 
-			#cur_edge[1] - The face we have to move the edge to
+			#color_to - The face we have to move the edge to
 			#color_from - The Face we have the edge in
 
-			cur_links = unsolved_cube.switcher_links.get(cur_edge[1])
-			rev_cur_links = {v: k for k, v in cur_links.items()}
-			dir_move_from = rev_cur_links[color_from]
-
 			# Move into Correct Face
-			if(dir_move_from is 'LEFT'):
-				unsolved_cube.make_move(cur_edge[1], 'W', 'B')
-			elif(dir_move_from is 'BACK'):
-				unsolved_cube.make_move(cur_edge[1], 'W', 'B')
-				unsolved_cube.make_move(cur_edge[1], 'W', 'B')
-			elif(dir_move_from is 'RIGHT'):
-				unsolved_cube.make_move(cur_edge[1], 'W', 'Bi')
+			if(unsolved_cube.get_right_or_left_center_block('LEFT',color_from,'W') == color_to):
+				unsolved_cube.make_move(color_to, 'W', 'Di')
 
+			elif(unsolved_cube.get_opp_center_block(color_from) == color_to):
+				unsolved_cube.make_move(color_to, 'W', 'D')
+				unsolved_cube.make_move(color_to, 'W', 'D')
+
+			elif(unsolved_cube.get_right_or_left_center_block('RIGHT',color_from,'W') == color_to):
+				unsolved_cube.make_move(color_to, 'W', 'D')
 
 			y_links = unsolved_cube.switcher_links.get('Y')
 			rev_y_links = {v: k for k, v in y_links.items()}
-			cur_index = rev_y_links[cur_edge[1]][1]
+			cur_dir = rev_y_links[color_to]
+			cur_index = unsolved_cube.index_switcher.get(cur_dir)
 
-			if(unsolved_cube.Rubic[cur_edge[1]][cur_index[0]][cur_index[1]]): #Correct Orientation
-				unsolved_cube.make_move(cur_edge[1], 'W', 'Fi')
-				unsolved_cube.make_move(cur_edge[1], 'W', 'Fi')
+
+			if(unsolved_cube.Rubic[unsolved_cube.rubic_switcher.get('Y')][cur_index[1][0]][cur_index[1][1]] == 'W'): #Correct Orientation
+				unsolved_cube.make_move(color_to, 'W', 'Fi')
+				unsolved_cube.make_move(color_to, 'W', 'Fi')
+
 			else: #Wrong Orientation
-				unsolved_cube.make_move(cur_edge[1], 'W', 'F')
-				unsolved_cube.make_move(cur_edge[1], 'W', 'U')
-				unsolved_cube.make_move(cur_edge[1], 'W', 'Li')
-				unsolved_cube.make_move(cur_edge[1], 'W', 'Ui')
+				unsolved_cube.make_move(color_to, 'W', 'F')
+				unsolved_cube.make_move(color_to, 'W', 'U')
+				unsolved_cube.make_move(color_to, 'W', 'Li')
+				unsolved_cube.make_move(color_to, 'W', 'Ui')
 
-
+			self.update_db_from_cube(unsolved_cube,'E')
 
 
 
