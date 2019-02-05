@@ -13,10 +13,13 @@ def driver():
 
 	algo.solve_state_one(cube_scramble, "RR")
 	algo.solve_state_two(cube_scramble, "RR" )
+	algo.solve_state_three(cube_scramble,"RR")
 	# #algo.insert_to_db_from_cube(cube_scramble,'U')
 	# print("---------------------------------------------------------------------------------------")
 	print(algo.check_state_one(cube_scramble))
 	print(algo.check_state_two(cube_scramble))
+	print(algo.check_state_three(cube_scramble))
+
 	cube_scramble.print_Cube()
 	# print(algo.find_piece(cube_scramble, 'E', 'WG'))
 	# print(algo.find_piece(cube_scramble, 'E', 'WR'))
