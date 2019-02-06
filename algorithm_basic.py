@@ -16,7 +16,6 @@ from CubeBasicsVector import Cube
 
 class algorithm:
 
-	solved_cube = Cube()
 
 	inv_rubic_switcher = {
             0 : 'W',
@@ -147,7 +146,7 @@ class algorithm:
 
 	def scramble_random1(self, cube_scrmbl):
 
-		scramble = "RLDBUFUFUDDRLFBBFDRL"
+		scramble = "RLDBBFDRL"
 		for c in scramble:
 			cube_scrmbl.make_move('W','R',c)
 		return cube_scrmbl
@@ -441,13 +440,9 @@ class algorithm:
 			result = self.find_piece(unsolved_cube, 'E', cur_edge)
 			color_to = cur_edge[0]
 			color_from = result['colorcode'][1]
-			print(color_to)
-			print(color_from)
 			dir_rotate = 'L'
-			print(self.find_piece(unsolved_cube, 'E', cur_edge))
 
 			if result['colorcode'][0] != 'Y':
-				print("Y te dhuklo ------------------------")
 				unsolved_cube.make_move(color_from, 'Y', 'Ui')
 				unsolved_cube.make_move(color_from, 'Y', 'Li')
 				unsolved_cube.make_move(color_from, 'Y', 'U')
@@ -458,22 +453,17 @@ class algorithm:
 				unsolved_cube.make_move(color_from, 'Y', 'Fi')
 				unsolved_cube.make_move(color_from, 'Y', 'U')
 				unsolved_cube.make_move(color_from, 'Y', 'U')
-				print(self.find_piece(unsolved_cube, 'E', cur_edge))
 
 			if (unsolved_cube.get_right_or_left_center_block('LEFT', color_from, 'W') == color_to):
-				print("LEFTTT te dhuklo ------------------------")
 				unsolved_cube.make_move(color_to, 'W', 'Di')
 
 			elif (unsolved_cube.get_opp_center_block(color_from) == color_to):
-				print("OPP te dhuklo ------------------------")
 				unsolved_cube.make_move(color_to, 'W', 'D')
 				unsolved_cube.make_move(color_to, 'W', 'D')
 
 			elif (unsolved_cube.get_right_or_left_center_block('RIGHT', color_from, 'W') == color_to):
-				print("RIGHT te dhuklo ------------------------")
 				unsolved_cube.make_move(color_to, 'W', 'D')
 
-			print(self.find_piece(unsolved_cube, 'E', cur_edge))
 			y_links = unsolved_cube.switcher_links.get('Y')
 			rev_y_links = {v: k for k, v in y_links.items()}
 			cur_dir = rev_y_links[color_to]
@@ -481,13 +471,11 @@ class algorithm:
 
 			# Correct Orientation
 			if (unsolved_cube.Rubic[unsolved_cube.rubic_switcher.get('Y')][cur_index[1][0]][cur_index[1][1]] == color_to):
-				print("correct orrientation e dhuklo ------------------------")
 				unsolved_cube.make_move(color_from, 'Y', 'Ui')
 				color_to = cur_edge[1]
 				dir_rotate = 'R'
-			print(self.find_piece(unsolved_cube, 'E', cur_edge))
+
 			if dir_rotate == 'L':
-				print("L e dhuklo ------------------------")
 				unsolved_cube.make_move(color_to, 'Y', 'U')
 				unsolved_cube.make_move(color_to, 'Y', 'R')
 				unsolved_cube.make_move(color_to, 'Y', 'Ui')
@@ -498,7 +486,6 @@ class algorithm:
 				unsolved_cube.make_move(color_to, 'Y', 'F')
 
 			else :
-				print("R e dhuklo ------------------------")
 				unsolved_cube.make_move(color_to, 'Y', 'Ui')
 				unsolved_cube.make_move(color_to, 'Y', 'Li')
 				unsolved_cube.make_move(color_to, 'Y', 'U')
@@ -507,42 +494,130 @@ class algorithm:
 				unsolved_cube.make_move(color_to, 'Y', 'F')
 				unsolved_cube.make_move(color_to, 'Y', 'Ui')
 				unsolved_cube.make_move(color_to, 'Y', 'Fi')
-			print(self.find_piece(unsolved_cube, 'E', cur_edge))
 
 			self.update_db_from_cube(unsolved_cube, 'E')
-
-
-
-
-
 
 
 	# 4. Getting the yellow cross (Yellow Edges) [Solving 4 yellow edges]
 	def solve_state_four(self, unsolved_cube,string_solved_cube):
 
-		return
+		# None of Yellow Faces of Edge piece in place
+		if ( ( unsolved_cube.Rubic[5][0][1] != 'Y' ) and ( unsolved_cube.Rubic[5][1][0] != 'Y' ) and ( unsolved_cube.Rubic[5][2][1] != 'Y' ) and ( unsolved_cube.Rubic[5][1][2] != 'Y' ) ) :
+			unsolved_cube.make_move('R', 'Y', 'F')
+			unsolved_cube.make_move('R', 'Y', 'U')
+			unsolved_cube.make_move('R', 'Y', 'R')
+			unsolved_cube.make_move('R', 'Y', 'Ui')
+			unsolved_cube.make_move('R', 'Y', 'Ri')
+			unsolved_cube.make_move('R', 'Y', 'Fi')
 
+		if ( ( unsolved_cube.Rubic[5][0][1] == 'Y' ) and ( unsolved_cube.Rubic[5][2][1] == 'Y' ) ):
+			unsolved_cube.make_move('R', 'Y', 'F')
+			unsolved_cube.make_move('R', 'Y', 'R')
+			unsolved_cube.make_move('R', 'Y', 'U')
+			unsolved_cube.make_move('R', 'Y', 'Ri')
+			unsolved_cube.make_move('R', 'Y', 'Ui')
+			unsolved_cube.make_move('R', 'Y', 'Fi')
+
+		elif ( ( unsolved_cube.Rubic[5][1][0] == 'Y' )  and ( unsolved_cube.Rubic[5][1][2] == 'Y' ) ):
+			unsolved_cube.make_move('B', 'Y', 'F')
+			unsolved_cube.make_move('B', 'Y', 'R')
+			unsolved_cube.make_move('B', 'Y', 'U')
+			unsolved_cube.make_move('B', 'Y', 'Ri')
+			unsolved_cube.make_move('B', 'Y', 'Ui')
+			unsolved_cube.make_move('B', 'Y', 'Fi')
+
+		# State 4
+		elif ((unsolved_cube.Rubic[5][0][1] == 'Y') and (unsolved_cube.Rubic[5][1][0] == 'Y')):
+			unsolved_cube.make_move('B', 'Y', 'F')
+			unsolved_cube.make_move('B', 'Y', 'U')
+			unsolved_cube.make_move('B', 'Y', 'R')
+			unsolved_cube.make_move('B', 'Y', 'Ui')
+			unsolved_cube.make_move('B', 'Y', 'Ri')
+			unsolved_cube.make_move('B', 'Y', 'Fi')
+
+		elif ((unsolved_cube.Rubic[5][1][0] == 'Y') and (unsolved_cube.Rubic[5][2][1] == 'Y')):
+			unsolved_cube.make_move('R', 'Y', 'F')
+			unsolved_cube.make_move('R', 'Y', 'U')
+			unsolved_cube.make_move('R', 'Y', 'R')
+			unsolved_cube.make_move('R', 'Y', 'Ui')
+			unsolved_cube.make_move('R', 'Y', 'Ri')
+			unsolved_cube.make_move('R', 'Y', 'Fi')
+
+		elif ((unsolved_cube.Rubic[5][2][1] == 'Y') and (unsolved_cube.Rubic[5][1][2] == 'Y')):
+			unsolved_cube.make_move('G', 'Y', 'F')
+			unsolved_cube.make_move('G', 'Y', 'U')
+			unsolved_cube.make_move('G', 'Y', 'R')
+			unsolved_cube.make_move('G', 'Y', 'Ui')
+			unsolved_cube.make_move('G', 'Y', 'Ri')
+			unsolved_cube.make_move('G', 'Y', 'Fi')
+
+		elif ((unsolved_cube.Rubic[5][1][2] == 'Y') and (unsolved_cube.Rubic[5][0][1] == 'Y')):
+			unsolved_cube.make_move('O', 'Y', 'F')
+			unsolved_cube.make_move('O', 'Y', 'U')
+			unsolved_cube.make_move('O', 'Y', 'R')
+			unsolved_cube.make_move('O', 'Y', 'Ui')
+			unsolved_cube.make_move('O', 'Y', 'Ri')
+			unsolved_cube.make_move('O', 'Y', 'Fi')
+
+		self.update_db_from_cube(unsolved_cube, 'E')
+		return
 
 	# 5. Getting the Yellow Face (Yellow Face whole) [Solving 4 yellow corners]
-	def solve_state_five(self, unsolved_cube,string_solved_cube):
+	def solve_state_five(self, unsolved_cube, string_solved_cube):
+
+		while(self.check_state_five(unsolved_cube) == False):
+
+			if unsolved_cube.Rubic[5][0][0] != 'Y' and unsolved_cube.Rubic[5][2][0] != 'Y' and unsolved_cube.Rubic[5][2][2] != 'Y' and unsolved_cube.Rubic[5][0][2] != 'Y':
+
+				if unsolved_cube.Rubic[1][2][0] == 'Y':
+					ref_center = 'G'
+				elif unsolved_cube.Rubic[2][2][0] == 'Y':
+					ref_center = 'O'
+				elif unsolved_cube.Rubic[3][0][2] == 'Y':
+					ref_center = 'B'
+				elif unsolved_cube.Rubic[4][0][2] == 'Y':
+					ref_center = 'R'
+
+			elif self.corners_with_yellow_count(unsolved_cube) == 2:
+
+				if unsolved_cube.Rubic[1][2][2] == 'Y':
+					ref_center = 'R'
+				elif unsolved_cube.Rubic[2][2][2] == 'Y':
+					ref_center = 'G'
+				elif unsolved_cube.Rubic[3][0][0] == 'Y':
+					ref_center = 'O'
+				elif unsolved_cube.Rubic[4][0][0] == 'Y':
+					ref_center = 'B'
+
+			elif unsolved_cube.Rubic[5][2][0] == 'Y':
+				ref_center = 'B'
+
+			elif unsolved_cube.Rubic[5][0][0] == 'Y':
+				ref_center = 'O'
+
+			elif unsolved_cube.Rubic[5][0][2]== 'Y':
+				ref_center = 'G'
+
+			elif unsolved_cube.Rubic[5][2][2] == 'Y':
+				ref_center = 'R'
+
+			self.moves_state_five(unsolved_cube, string_solved_cube, ref_center)
+			self.update_db_from_cube(unsolved_cube, 'E')
+			self.update_db_from_cube(unsolved_cube, 'C')
 
 		return
-
 
 	# 6. Getting the third layer corner pieces (Yellow Corners aligned) [Solving yellow Corners wrt. cube]
 	def solve_state_six(self, unsolved_cube,string_solved_cube):
 
 		return
 
-
 	# 7. Finishing the cube (All Done) [Solving Yellow Edges wrt. Cube]
 	def solve_state_seven(self, unsolved_cube,string_solved_cube):
 
 		return
 
-
 	def solve_state_main(self,state,unsolved_cube,string_solved_cube):
-
 
 		if state is 1:
 			self.solve_state_one(unsolved_cube,string_solved_cube)
@@ -583,3 +658,29 @@ class algorithm:
 				return 'E'
 
 		return solution
+
+	def moves_state_five(self, unsolved_cube, string_solved_cube, ref_center):
+
+		unsolved_cube.make_move(ref_center, 'Y', 'R')
+		unsolved_cube.make_move(ref_center, 'Y', 'U')
+		unsolved_cube.make_move(ref_center, 'Y', 'Ri')
+		unsolved_cube.make_move(ref_center, 'Y', 'U')
+		unsolved_cube.make_move(ref_center, 'Y', 'R')
+		unsolved_cube.make_move(ref_center, 'Y', 'U')
+		unsolved_cube.make_move(ref_center, 'Y', 'U')
+		unsolved_cube.make_move(ref_center, 'Y', 'Ri')
+
+	def corners_with_yellow_count(self, unsolved_cube):
+
+		count = 0;
+
+		if unsolved_cube.Rubic[5][0][0] == 'Y':
+			count += 1
+		if unsolved_cube.Rubic[5][2][0] == 'Y':
+			count += 1
+		if unsolved_cube.Rubic[5][2][2] == 'Y':
+			count += 1
+		if unsolved_cube.Rubic[5][0][2] == 'Y':
+			count += 1
+
+		return count
