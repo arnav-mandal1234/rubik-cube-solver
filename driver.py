@@ -16,6 +16,8 @@ def driver():
 	algo.solve_state_three(cube_scramble,"RR")
 	algo.solve_state_four(cube_scramble,"RR")
 	algo.solve_state_five(cube_scramble, "RR")
+	algo.solve_state_six(cube_scramble, "RR")
+	algo.solve_state_seven(cube_scramble, "RR")
 
 	# #algo.insert_to_db_from_cube(cube_scramble,'U')
 	# print("---------------------------------------------------------------------------------------")
@@ -24,6 +26,8 @@ def driver():
 	print(algo.check_state_three(cube_scramble))
 	print(algo.check_state_four(cube_scramble))
 	print(algo.check_state_five(cube_scramble))
+	print(algo.check_state_six(cube_scramble))
+	print(algo.check_state_seven(cube_scramble))
 
 	# cube_scramble.print_Cube()
 	# print(algo.find_piece(cube_scramble, 'E', 'WG'))

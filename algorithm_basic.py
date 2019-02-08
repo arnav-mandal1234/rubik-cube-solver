@@ -146,7 +146,7 @@ class algorithm:
 
 	def scramble_random1(self, cube_scrmbl):
 
-		scramble = "RLDBBFDRL"
+		scramble = "RLDBDLRUDFRLFBUBDFLBDUBBDFFUBUBFDRL"
 		for c in scramble:
 			cube_scrmbl.make_move('W','R',c)
 		return cube_scrmbl
@@ -503,62 +503,28 @@ class algorithm:
 
 		# None of Yellow Faces of Edge piece in place
 		if ( ( unsolved_cube.Rubic[5][0][1] != 'Y' ) and ( unsolved_cube.Rubic[5][1][0] != 'Y' ) and ( unsolved_cube.Rubic[5][2][1] != 'Y' ) and ( unsolved_cube.Rubic[5][1][2] != 'Y' ) ) :
-			unsolved_cube.make_move('R', 'Y', 'F')
-			unsolved_cube.make_move('R', 'Y', 'U')
-			unsolved_cube.make_move('R', 'Y', 'R')
-			unsolved_cube.make_move('R', 'Y', 'Ui')
-			unsolved_cube.make_move('R', 'Y', 'Ri')
-			unsolved_cube.make_move('R', 'Y', 'Fi')
+			self.moves_state_four_first(unsolved_cube, string_solved_cube, 'R')
 
 		if ( ( unsolved_cube.Rubic[5][0][1] == 'Y' ) and ( unsolved_cube.Rubic[5][2][1] == 'Y' ) ):
-			unsolved_cube.make_move('R', 'Y', 'F')
-			unsolved_cube.make_move('R', 'Y', 'R')
-			unsolved_cube.make_move('R', 'Y', 'U')
-			unsolved_cube.make_move('R', 'Y', 'Ri')
-			unsolved_cube.make_move('R', 'Y', 'Ui')
-			unsolved_cube.make_move('R', 'Y', 'Fi')
+			self.moves_state_four_second(unsolved_cube, string_solved_cube, 'R')
 
 		elif ( ( unsolved_cube.Rubic[5][1][0] == 'Y' )  and ( unsolved_cube.Rubic[5][1][2] == 'Y' ) ):
-			unsolved_cube.make_move('B', 'Y', 'F')
-			unsolved_cube.make_move('B', 'Y', 'R')
-			unsolved_cube.make_move('B', 'Y', 'U')
-			unsolved_cube.make_move('B', 'Y', 'Ri')
-			unsolved_cube.make_move('B', 'Y', 'Ui')
-			unsolved_cube.make_move('B', 'Y', 'Fi')
+			self.moves_state_four_second(unsolved_cube, string_solved_cube, 'B')
 
 		# State 4
 		elif ((unsolved_cube.Rubic[5][0][1] == 'Y') and (unsolved_cube.Rubic[5][1][0] == 'Y')):
-			unsolved_cube.make_move('B', 'Y', 'F')
-			unsolved_cube.make_move('B', 'Y', 'U')
-			unsolved_cube.make_move('B', 'Y', 'R')
-			unsolved_cube.make_move('B', 'Y', 'Ui')
-			unsolved_cube.make_move('B', 'Y', 'Ri')
-			unsolved_cube.make_move('B', 'Y', 'Fi')
+			self.moves_state_four_first(unsolved_cube, string_solved_cube, 'B')
 
 		elif ((unsolved_cube.Rubic[5][1][0] == 'Y') and (unsolved_cube.Rubic[5][2][1] == 'Y')):
-			unsolved_cube.make_move('R', 'Y', 'F')
-			unsolved_cube.make_move('R', 'Y', 'U')
-			unsolved_cube.make_move('R', 'Y', 'R')
-			unsolved_cube.make_move('R', 'Y', 'Ui')
-			unsolved_cube.make_move('R', 'Y', 'Ri')
-			unsolved_cube.make_move('R', 'Y', 'Fi')
+			self.moves_state_four_first(unsolved_cube, string_solved_cube, 'R')
 
 		elif ((unsolved_cube.Rubic[5][2][1] == 'Y') and (unsolved_cube.Rubic[5][1][2] == 'Y')):
-			unsolved_cube.make_move('G', 'Y', 'F')
-			unsolved_cube.make_move('G', 'Y', 'U')
-			unsolved_cube.make_move('G', 'Y', 'R')
-			unsolved_cube.make_move('G', 'Y', 'Ui')
-			unsolved_cube.make_move('G', 'Y', 'Ri')
+			self.moves_state_four_first(unsolved_cube, string_solved_cube, 'G')
 			unsolved_cube.make_move('G', 'Y', 'Fi')
 
 		elif ((unsolved_cube.Rubic[5][1][2] == 'Y') and (unsolved_cube.Rubic[5][0][1] == 'Y')):
-			unsolved_cube.make_move('O', 'Y', 'F')
-			unsolved_cube.make_move('O', 'Y', 'U')
-			unsolved_cube.make_move('O', 'Y', 'R')
-			unsolved_cube.make_move('O', 'Y', 'Ui')
-			unsolved_cube.make_move('O', 'Y', 'Ri')
-			unsolved_cube.make_move('O', 'Y', 'Fi')
-
+			self.moves_state_four_first(unsolved_cube, string_solved_cube, 'O')
+		
 		self.update_db_from_cube(unsolved_cube, 'E')
 		return
 
@@ -610,10 +576,47 @@ class algorithm:
 	# 6. Getting the third layer corner pieces (Yellow Corners aligned) [Solving yellow Corners wrt. cube]
 	def solve_state_six(self, unsolved_cube,string_solved_cube):
 
+		# Rotates till we get two corners right and returns if they are at Diagonals or at same face
+		back_side, cube_state = self.get_two_corner_correct(unsolved_cube)
+
+		#If already has correct corner pieces, return
+		if (cube_state == 'S'):
+			return
+
+		# If they are at Diagonals get two corners at same face
+		if(cube_state == 'D'):
+			self.moves_state_six(unsolved_cube, string_solved_cube, 'R')
+			back_side, cube_state = self.get_two_corner_correct(unsolved_cube)
+
+		front_side = unsolved_cube.get_opp_center_block(back_side)
+
+		self.moves_state_six(unsolved_cube, string_solved_cube, front_side)
+		self.update_db_from_cube(unsolved_cube, 'E')
+		self.update_db_from_cube(unsolved_cube, 'C')
+
+		#unsolved_cube.print_Cube()
+
 		return
 
 	# 7. Finishing the cube (All Done) [Solving Yellow Edges wrt. Cube]
 	def solve_state_seven(self, unsolved_cube,string_solved_cube):
+
+		# If 4 edges are incorrect, Do this sequence to get one correct edge
+		if(self.state_seven_edges_incorrect(unsolved_cube, 'num') == 4):
+			self.moves_state_seven(unsolved_cube, string_solved_cube, 'R', 'C')
+
+		# Get the Front Facing Side for Remaining Moves (Opp Correct Edge)
+		back_side = self.state_seven_edges_incorrect(unsolved_cube, 'side')
+		front_side = unsolved_cube.get_opp_center_block(back_side)
+
+		# Get which direction to rotate and then do respective sequences
+		if(self.get_dir_rotate_state_seven(unsolved_cube, front_side) == 'C'):
+			self.moves_state_seven(unsolved_cube, string_solved_cube, front_side, 'C')
+		else:
+			self.moves_state_seven(unsolved_cube, string_solved_cube, front_side, 'A')
+
+		self.update_db_from_cube(unsolved_cube, 'E')
+		self.update_db_from_cube(unsolved_cube, 'C')
 
 		return
 
@@ -659,6 +662,28 @@ class algorithm:
 
 		return solution
 
+	def moves_state_four_first(self, unsolved_cube, string_solved_cube, ref_center):
+
+		unsolved_cube.make_move(ref_center, 'Y', 'F')
+		unsolved_cube.make_move(ref_center, 'Y', 'U')
+		unsolved_cube.make_move(ref_center, 'Y', 'R')
+		unsolved_cube.make_move(ref_center, 'Y', 'Ui')
+		unsolved_cube.make_move(ref_center, 'Y', 'Ri')
+		unsolved_cube.make_move(ref_center, 'Y', 'Fi')
+
+		return
+
+	def moves_state_four_second(self, unsolved_cube, string_solved_cube, ref_center):
+
+		unsolved_cube.make_move(ref_center, 'Y', 'F')
+		unsolved_cube.make_move(ref_center, 'Y', 'R')
+		unsolved_cube.make_move(ref_center, 'Y', 'U')
+		unsolved_cube.make_move(ref_center, 'Y', 'Ri')
+		unsolved_cube.make_move(ref_center, 'Y', 'Ui')
+		unsolved_cube.make_move(ref_center, 'Y', 'Fi')
+
+		return
+
 	def moves_state_five(self, unsolved_cube, string_solved_cube, ref_center):
 
 		unsolved_cube.make_move(ref_center, 'Y', 'R')
@@ -669,6 +694,57 @@ class algorithm:
 		unsolved_cube.make_move(ref_center, 'Y', 'U')
 		unsolved_cube.make_move(ref_center, 'Y', 'U')
 		unsolved_cube.make_move(ref_center, 'Y', 'Ri')
+
+		return
+
+	def moves_state_six(self, unsolved_cube, string_solved_cube, front_side):
+
+		unsolved_cube.make_move(front_side, 'Y', 'Ri')
+		unsolved_cube.make_move(front_side, 'Y', 'F')
+		unsolved_cube.make_move(front_side, 'Y', 'Ri')
+		unsolved_cube.make_move(front_side, 'Y', 'B')
+		unsolved_cube.make_move(front_side, 'Y', 'B')
+		unsolved_cube.make_move(front_side, 'Y', 'R')
+		unsolved_cube.make_move(front_side, 'Y', 'Fi')
+		unsolved_cube.make_move(front_side, 'Y', 'Ri')
+		unsolved_cube.make_move(front_side, 'Y', 'B')
+		unsolved_cube.make_move(front_side, 'Y', 'B')
+		unsolved_cube.make_move(front_side, 'Y', 'R')
+		unsolved_cube.make_move(front_side, 'Y', 'R')
+		unsolved_cube.make_move(front_side, 'Y', 'Ui')
+
+		return
+
+	def moves_state_seven(self, unsolved_cube, string_solved_cube, front_side, dir):
+
+		if dir == 'A':
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'U')
+			unsolved_cube.make_move(front_side, 'Y', 'L')
+			unsolved_cube.make_move(front_side, 'Y', 'Ri')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'Li')
+			unsolved_cube.make_move(front_side, 'Y', 'R')
+			unsolved_cube.make_move(front_side, 'Y', 'U')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+		else:
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'Ui')
+			unsolved_cube.make_move(front_side, 'Y', 'L')
+			unsolved_cube.make_move(front_side, 'Y', 'Ri')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'Li')
+			unsolved_cube.make_move(front_side, 'Y', 'R')
+			unsolved_cube.make_move(front_side, 'Y', 'Ui')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+			unsolved_cube.make_move(front_side, 'Y', 'F')
+
+		return
 
 	def corners_with_yellow_count(self, unsolved_cube):
 
@@ -684,3 +760,112 @@ class algorithm:
 			count += 1
 
 		return count
+
+	def get_two_corner_correct(self, unsolved_cube):
+
+		count = 0
+
+		while(1):
+			
+			back_side, cube_state = self.two_yellow_cor_correct(unsolved_cube)
+			
+			if (back_side != 'E') or (cube_state == 'S'):
+				break
+
+			if (count == 4):
+				print("Error at Get Two Corner Correct")
+			
+			unsolved_cube.make_move('R', 'Y', 'U')
+			count += 1
+
+		return back_side, cube_state
+
+	def two_yellow_cor_correct(self, unsolved_cube):
+
+		back_side = 'E'
+		cube_state = 'E'
+		correct_corners = 0
+		corner_string = ''
+		correct_corner_index = ['N' for i in range(4)]
+
+		if ( unsolved_cube.Rubic[1][2][0] == 'R' ) and ( unsolved_cube.Rubic[2][2][2] == 'G' ):
+			correct_corners += 1
+			correct_corner_index[0] = 'Y'
+
+		if ( unsolved_cube.Rubic[2][2][0] == 'G' ) and ( unsolved_cube.Rubic[3][0][0] == 'O' ):
+			correct_corners += 1
+			correct_corner_index[1] = 'Y'
+
+		if ( unsolved_cube.Rubic[3][0][2] == 'O' ) and ( unsolved_cube.Rubic[4][0][0] == 'B' ):
+			correct_corners += 1
+			correct_corner_index[2] = 'Y'
+
+		if ( unsolved_cube.Rubic[4][2][0] == 'B' ) and ( unsolved_cube.Rubic[1][2][2] == 'R' ):
+			correct_corners += 1
+			correct_corner_index[3] = 'Y'
+
+		if(correct_corners < 2):
+			return back_side, cube_state
+		elif(correct_corners == 4):
+			cube_state = 'S'
+			return back_side, cube_state
+		else:
+			if ((correct_corner_index[0] == 'Y') and (correct_corner_index[2] == 'Y')) or ((correct_corner_index[1] == 'Y') and (correct_corner_index[3] == 'Y')):
+				cube_state = 'D'
+				back_side = 'R' 
+			elif (correct_corner_index[0] == 'Y') and (correct_corner_index[1] == 'Y'):
+				back_side = 'G'
+			elif (correct_corner_index[1] == 'Y') and (correct_corner_index[2] == 'Y'):
+				back_side = 'O'
+			elif (correct_corner_index[2] == 'Y') and (correct_corner_index[3] == 'Y'):
+				back_side = 'B'
+			elif (correct_corner_index[3] == 'Y') and (correct_corner_index[0] == 'Y'):
+				back_side = 'R'
+
+		return back_side, cube_state
+
+	def state_seven_edges_incorrect(self, unsolved_cube, request):
+
+		incorrect_edges = 0
+		back_side = 'E'
+
+		if(unsolved_cube.Rubic[1][2][1] != 'R'):
+			incorrect_edges += 1
+		else:
+			back_side = 'R'
+		
+		if(unsolved_cube.Rubic[2][2][1] != 'G'):
+			incorrect_edges += 1
+		else:
+			back_side = 'G'
+		
+		if(unsolved_cube.Rubic[3][0][1] != 'O'):
+			incorrect_edges += 1
+		else:
+			back_side = 'O'
+		
+		if(unsolved_cube.Rubic[4][0][1] != 'B'):
+			incorrect_edges += 1
+		else:
+			back_side = 'B'
+
+		if request == 'num':
+			return incorrect_edges
+		else:
+			return back_side
+
+	def get_dir_rotate_state_seven(self, unsolved_cube, front_side):
+
+		left_side = unsolved_cube.rubic_switcher.get(unsolved_cube.get_right_or_left_center_block('LEFT', front_side, 'Y'), "E")
+
+		if (left_side == 'B') or (left_side == 'O'):
+			left_edge_current = unsolved_cube.Rubic[left_side][0][1]
+		else:
+			left_edge_current = unsolved_cube.Rubic[left_side][2][1]
+
+		if left_edge_current == front_side :
+			direction = 'C'
+		else:
+			direction = 'A'
+
+		return direction
