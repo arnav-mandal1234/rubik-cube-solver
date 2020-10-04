@@ -56,7 +56,11 @@ mat_blue = createNewMat("rubik_blue", 0, 0, 0.475)
 mat_green = createNewMat("rubik_green", 0, 0.475, 0)
 mat_orange = createNewMat("rubik_orange", 0.754, 0.110, 0)
 mat_yellow = createNewMat("rubik_yellow", 0.754, 0.443, 0)
-
+# Clearing all rubiks materials
+for material in bpy.data.materials:
+    if material.name.startswith("rubik"):
+        material.user_clear()
+        bpy.data.materials.remove(material)
 bpy.app.debug = True # Allowing to view vertices indexes
 
 scn = bpy.context.scene
