@@ -11,6 +11,11 @@ class Cube:
 
     Rubic = [[['W' for r in range(cube_row)] for c in range(cube_column)] for f in range(cube_faces)]
 
+    Rubic_R = [['R' for rr in range(cube_row)] for cr in range(cube_column)]
+    Rubic[1] = Rubic_R
+    Rubic_R_links={'UP':'W','DOWN':'Y','LEFT':'G','RIGHT':'B','FRONT':'R','BACK':'O'}
+    Rubic_R_adj = 'WBYGW'
+    
     Rubic_W = [['W' for rw in range(cube_row)] for cw in range(cube_column)]
     Rubic[0] = Rubic_W
     Rubic_W_links={'UP':'B','DOWN':'G','LEFT':'O','RIGHT':'R','FRONT':'W','BACK':'Y'}
